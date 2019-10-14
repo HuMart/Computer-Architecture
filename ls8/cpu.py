@@ -83,4 +83,14 @@ class CPU:
             IR = self.ram[self.pc]
             op_a = self.ram_read(self.pc + 1)
             op_b = self.ram_read(self.pc + 2)
-        
+            
+            if IR == LDI:
+                self.reg[op_a] = op_b
+                self.pc += 3
+            
+            elif IR == PRN:
+                print(self.reg[op_a])
+                self.pc += 2
+
+            elif IR == HLT:
+                running = False
