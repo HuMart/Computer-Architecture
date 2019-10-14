@@ -84,13 +84,16 @@ class CPU:
             op_a = self.ram_read(self.pc + 1)
             op_b = self.ram_read(self.pc + 2)
             
+            # LDI: load "immediate", store a value in a register, or "set this register to this value".
             if IR == LDI:
                 self.reg[op_a] = op_b
                 self.pc += 3
             
+            # PRN: a pseudo-instruction that prints the numeric value stored in a register.
             elif IR == PRN:
                 print(self.reg[op_a])
                 self.pc += 2
-
+            
+            # PRN: HLT: halt the CPU and exit the emulator.
             elif IR == HLT:
                 running = False
