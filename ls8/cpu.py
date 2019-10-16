@@ -20,6 +20,7 @@ class CPU:
         self.pc = 0
         self.sp = 0xF4
 
+
     def ram_read(self, address):
         return self.ram[address]
 
@@ -105,6 +106,21 @@ class CPU:
             elif IR == MUL:
                 self.alu("MUL", op_a, op_b)
                 self.pc += 3
+
+            elif IR == PUSH:
+                op_a = self.ram_read(self.pc + 1)
+                self.ram[self.sp] = self.reg[op_a]
+                self.sp -= 1
+                self.pc += 2
+
+            elif IR == POP:
+                op_a = self.ram_read(self.pc + 1)
+                if self.sp == 0xF4:
+                    print("STACK IS EMPTY")
+                else:
+                    self.sp += 1
+                    self.reg[op_a] = self.ram[self.sp]
+                    self.pc += 2
             
             
             elif IR == HLT:
