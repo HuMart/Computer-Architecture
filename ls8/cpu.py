@@ -11,6 +11,10 @@ POP = 0b01000110
 CALL = 0b01010000
 RET = 0b00010001
 ADD = 0b10100000
+JMP = 0b01010100
+JEQ = 0b01010101
+JNE = 0b01010110
+CMP = 0b10100111
 
 
 class CPU:
@@ -23,6 +27,10 @@ class CPU:
         self.pc = 0
         self.sp = 0xF4
         self.file = file
+        self.fl = 0
+        self.E = 0
+        self.L = 0
+        self.G = 0
 
 
     def ram_read(self, MAR):
@@ -64,6 +72,21 @@ class CPU:
         #elif op == "SUB": etc
         elif op == "MUL":
             self.reg[reg_a] *= self.reg[reg_b]
+
+        elif op == "CMP":
+            self.E = 0
+            self.L = 0
+            self.G = 0
+            reg_a = self.reg[self.ram[self.pc + 1]]
+            reg_b = self.reg[self.ram[self.pc + 2]]
+
+            if reg_a == reg_b:
+                self.E = 1
+            elif reg_a < reg_b:
+                self.L = 1
+            elif reg_a > reg_b:
+                self.G = 1
+
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -139,6 +162,30 @@ class CPU:
             elif IR == RET:
                 self.pc = self.ram[self.sp]
                 self.sp += 1
+
+            elif IR == JMP:
+                jump = self.reg[self.ram[self.pc + 1]]
+                self.pc = jump
+            
+            elif IR == JEQ:
+                if self.E == 1:
+                    self.pc = self.reg[self.ram[self.pc + 1]]
+                else:
+                    move = (IR >> 6) + 1
+                    self.pc += move
+            
+            elif IR == JNE:
+                if self.E == 0:
+                    self.pc = self.reg[self.ram[self.pc + 1]]
+                else:
+                    move = (IR >> 6) + 1
+                    self.pc += move         
+
+            
+            elif IR == CMP:
+                self.alu("CMP", self.ram[self.pc + 1], self.ram[self.pc + 2])
+                move = (IR >> 6) + 1
+                self.pc += move
 
                 
 
